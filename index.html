@@ -54,6 +54,22 @@
       const DURATION = 3500;
       const MIN_GAP  = 3000;
       const MAX_GAP  = 6000;
+      let peekTimer  = null;
+
+      function schedule(delay) {
+        clearTimeout(peekTimer);
+        peekTimer = setTimeout(peek, delay);
+      }
+
+      function swipeNet(x, y) {
+        const net = document.createElement('div');
+        net.className = 'swipe-net';
+        net.innerHTML = '<div class="swipe-net-mesh"></div><div class="swipe-net-handle"></div>';
+        const dir = Math.random() > 0.5 ? 1 : -1;
+        net.style.cssText = `left:${x}px; top:${y}px; --dir:${dir};`;
+        document.body.appendChild(net);
+        setTimeout(() => net.remove(), 700);
+      }
 
       function peek() {
         const margin = 60;
@@ -67,18 +83,41 @@
           border-radius:${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%;`;
         document.body.appendChild(hole);
 
+        const fontSize = 44 + Math.random() * 44;
         const mouse = document.createElement('div');
         mouse.className = 'peek-mouse';
         mouse.textContent = '🐭';
-        const fontSize = 44 + Math.random() * 44; // 44px–88px (2×–4× the original 22px)
         mouse.style.cssText = `left:${x}px; top:${y}px; font-size:${fontSize}px;`;
         document.body.appendChild(mouse);
 
-        setTimeout(() => { hole.remove(); mouse.remove(); }, DURATION + 100);
-        setTimeout(peek, DURATION + MIN_GAP + Math.random() * (MAX_GAP - MIN_GAP));
+        let done = false;
+        const autoCleanup = setTimeout(() => {
+          done = true;
+          hole.remove();
+          mouse.remove();
+          schedule(MIN_GAP + Math.random() * (MAX_GAP - MIN_GAP));
+        }, DURATION + 100);
+
+        mouse.addEventListener('click', () => {
+          if (done) return;
+          done = true;
+          clearTimeout(autoCleanup);
+
+          swipeNet(x, y);
+
+          // Mouse ducks away scared
+          mouse.style.transition = 'opacity 0.2s ease';
+          hole.style.transition  = 'opacity 0.25s ease';
+          mouse.style.opacity = '0';
+          hole.style.opacity  = '0';
+          setTimeout(() => { mouse.remove(); hole.remove(); }, 300);
+
+          // Spooked but curious — reappears sooner
+          schedule(1200 + Math.random() * 1500);
+        });
       }
 
-      setTimeout(peek, 1200);
+      schedule(1200);
     })();
   </script>
 </body>

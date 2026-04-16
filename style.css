@@ -45,9 +45,43 @@ body {
 
 .peek-mouse {
   position: fixed;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   animation: mouse-peek 3.5s ease-in-out forwards;
   z-index: 9999;
+}
+
+.swipe-net {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10001;
+  animation: net-swipe 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.swipe-net-mesh {
+  width: 65px;
+  height: 52px;
+  border: 4px solid #6B3A1F;
+  border-radius: 50% 50% 55% 55%;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 7px, rgba(107,58,31,0.45) 7px, rgba(107,58,31,0.45) 8px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 7px, rgba(107,58,31,0.45) 7px, rgba(107,58,31,0.45) 8px);
+  margin: 0 auto;
+}
+
+.swipe-net-handle {
+  width: 5px;
+  height: 65px;
+  background: linear-gradient(to bottom, #8B5A2B, #5D3A1A);
+  border-radius: 0 0 3px 3px;
+  margin: 0 auto;
+}
+
+@keyframes net-swipe {
+  0%   { transform: translate(calc(-50% + var(--dir) * 110px), calc(-50% - 90px)) rotate(calc(var(--dir) * -65deg)); opacity: 1; }
+  40%  { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+  65%  { transform: translate(-50%, -50%) rotate(calc(var(--dir) * 8deg)); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dir) * -70px), calc(-50% + 30px)) rotate(calc(var(--dir) * 20deg)); opacity: 0; }
 }
 
 @keyframes hole-life {
