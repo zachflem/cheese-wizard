@@ -13,6 +13,8 @@
       alt="Cheese Wizard"
     />
   </main>
+
+  <!-- Cheese trail follows the cursor -->
   <script>
     const CHEESES = ['🧀', '🧀', '🧀', '🫕', '🍕'];
     let lastX = null, lastY = null;
@@ -45,69 +47,37 @@
       el.addEventListener('animationend', () => el.remove());
     });
   </script>
+
+  <!-- Mouse peeks out of a random hole, looks around, disappears, repeats -->
   <script>
     (function () {
-      document.body.style.cursor = 'none';
+      const DURATION = 3500;
+      const MIN_GAP  = 3000;
+      const MAX_GAP  = 6000;
 
-      const wizMouse = document.createElement('div');
-      wizMouse.id = 'wiz-mouse';
-      wizMouse.textContent = '🐭';
-      document.body.appendChild(wizMouse);
+      function peek() {
+        const margin = 60;
+        const x = margin + Math.random() * (window.innerWidth  - margin * 2);
+        const y = margin + Math.random() * (window.innerHeight - margin * 2);
+        const r = () => (38 + Math.random() * 24) | 0;
 
-      let targetX = window.innerWidth / 2, targetY = window.innerHeight / 2;
-      let posX = targetX, posY = targetY;
-      let velX = 0, velY = 0;
-      let prevX = posX, prevY = posY;
-      let distSinceHole = 999;
-
-      document.addEventListener('mousemove', e => {
-        targetX = e.clientX;
-        targetY = e.clientY;
-      });
-
-      function spawnHole(x, y) {
         const hole = document.createElement('div');
-        hole.className = 'chew-hole';
-        const size = 18 + Math.random() * 22;
-        const r = () => (35 + Math.random() * 30) | 0;
-        hole.style.cssText = `
-          left: ${x}px; top: ${y}px;
-          width: ${size}px; height: ${size}px;
-          border-radius: ${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%;
-        `;
+        hole.className = 'peek-hole';
+        hole.style.cssText = `left:${x}px; top:${y}px;
+          border-radius:${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%;`;
         document.body.appendChild(hole);
-        setTimeout(() => {
-          hole.style.transition = 'opacity 2s ease';
-          hole.style.opacity = '0';
-          setTimeout(() => hole.remove(), 2000);
-        }, 13000);
+
+        const mouse = document.createElement('div');
+        mouse.className = 'peek-mouse';
+        mouse.textContent = '🐭';
+        mouse.style.cssText = `left:${x}px; top:${y}px;`;
+        document.body.appendChild(mouse);
+
+        setTimeout(() => { hole.remove(); mouse.remove(); }, DURATION + 100);
+        setTimeout(peek, DURATION + MIN_GAP + Math.random() * (MAX_GAP - MIN_GAP));
       }
 
-      function tick() {
-        velX = velX * 0.76 + (targetX - posX) * 0.13;
-        velY = velY * 0.76 + (targetY - posY) * 0.13;
-        posX += velX;
-        posY += velY;
-
-        const speed  = Math.sqrt(velX * velX + velY * velY);
-        const flip   = velX >= 0 ? 1 : -1;
-        const tilt   = Math.max(-25, Math.min(25, velY * 2));
-        const scale  = 1 + Math.min(speed / 80, 0.3);
-
-        wizMouse.style.cssText = `
-          left: ${posX}px; top: ${posY}px; font-size: 24px;
-          transform: translate(-50%,-50%) scaleX(${flip}) rotate(${tilt}deg) scale(${scale});
-        `;
-
-        const dx = posX - prevX, dy = posY - prevY;
-        distSinceHole += Math.sqrt(dx * dx + dy * dy);
-        if (distSinceHole >= 75) { spawnHole(posX, posY); distSinceHole = 0; }
-        prevX = posX; prevY = posY;
-
-        requestAnimationFrame(tick);
-      }
-
-      tick();
+      setTimeout(peek, 1200);
     })();
   </script>
 </body>
