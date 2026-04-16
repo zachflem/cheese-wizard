@@ -257,5 +257,76 @@
       }
     })();
   </script>
+  <!-- Toasted cheese facts -->
+  <script>
+    (function () {
+      const FACTS = [
+        "Cheese is the most stolen food in the world. 4% of all cheese produced globally is stolen each year. Cheese criminals walk among us.",
+        "Casu martzu is a Sardinian cheese intentionally infested with live maggots. The maggots can jump 6 inches when disturbed. It is technically illegal. It is also considered a delicacy.",
+        "A 3,200-year-old cheese was discovered in an Egyptian tomb in 2018. Scientists confirmed it was once edible. They did not confirm whether anyone tried it.",
+        "Mice don't actually prefer cheese. Studies show they prefer sweet foods. Every cartoon has lied to you.",
+        "The holes in Swiss cheese are officially called 'eyes.' Swiss cheese with no holes is called 'blind cheese.' This feels deeply ominous.",
+        "An Italian bank — Credito Emiliano — accepts wheels of Parmigiano-Reggiano as loan collateral. They store thousands of wheels in climate-controlled vaults. Cheese heists have been attempted.",
+        "Casein, a protein in cheese, breaks down into compounds that bind to the same opioid receptors as morphine. Cheese is, very mildly, a drug.",
+        "Époisses de Bourgogne is so powerfully pungent it is banned on French public transportation. Napoleon Bonaparte was reportedly obsessed with it.",
+        "France has over 1,600 varieties of cheese. De Gaulle once asked, 'How can you govern a country with 246 kinds of cheese?' The number has since grown considerably.",
+        "Kraft Singles cannot legally be called 'cheese.' They must be labeled 'pasteurized prepared cheese product.' There is an entire regulatory category for things pretending to be cheese.",
+        "The phrase 'the moon is made of green cheese' dates to 1546. 'Green' meant 'fresh' — not the color. This is still incorrect but slightly less absurd.",
+        "Turophobia is the documented fear of cheese. Symptoms include anxiety around cheese boards and an inability to enjoy fondue.",
+        "Swiss cheese holes have been shrinking since the 1950s. Scientists found they were caused by tiny hay particles falling into milk. Modern hygienic dairy practices removed the hay. Cleaner barns = fewer holes. Progress is complicated.",
+        "The British Cheese Board conducted a study finding cheese before bed causes vivid and unusual dreams. Blue cheese produced the most bizarre results. This was real peer-reviewed research.",
+        "The word 'salary' derives from Latin for salt payment — Romans were paid partly in salt. Cheese was also distributed as rations but left absolutely no linguistic legacy. The greatest injustice in etymology.",
+        "Swiss cheese fondue was not a folk tradition. It was invented as a 1930s marketing campaign by the Swiss Cheese Union to sell more cheese. It worked flawlessly.",
+        "The Swiss Cheese Union later became one of history's strangest financial scandals — embezzling millions to fund lavish global 'cheese diplomacy' parties for politicians throughout the 1980s. Multiple executives were imprisoned.",
+        "Babybel wax is food-safe and entirely edible. The company confirmed this when enough people asked. What you do with this information is between you and your conscience.",
+        "Natural cheddar is white. The orange color is artificial dye added since the 17th century to signal higher butterfat content. The tradition outlived its meaning. You have been eating dyed cheese your whole life.",
+        "The bacteria responsible for Limburger's infamous smell — Brevibacterium linens — is the same species responsible for human foot odor. They are literally the same microorganism. You're welcome.",
+        "String cheese is mozzarella heated to exactly 140°F, aligning its proteins into parallel strands. Biting it instead of peeling it is technically incorrect. There is no law against this.",
+        "Every year, people chase a wheel of Double Gloucester down a near-vertical hill in Cooper's Hill, England. The cheese reaches ~70 mph. No human has ever kept pace. The cheese always wins.",
+        "An aged wheel of Parmigiano-Reggiano can cost over $1,000. The rind is edible and traditionally added to Italian soups. Italians will silently respect you if you eat it plain.",
+        "It takes roughly 10 lbs of milk to produce 1 lb of cheese. A single wheel of Parmigiano-Reggiano requires the equivalent of one cow's annual milk output. Parmigiano does not cut corners.",
+        "The record for the world's longest grilled cheese sandwich is 53.8 meters, set in 2014. It required 25 lbs of cheese. It was consumed afterward. As it should be.",
+        "Cheese was used as currency in 14th-century France. Tax collectors in some regions accepted it in lieu of coin. Camembert has never been this powerful since.",
+        "The smell of aged cheese activates the same brain reward centers as financial gain. Your brain cannot meaningfully distinguish between smelling Gruyère and winning money. Invest accordingly.",
+        "Roquefort-sur-Soulzon, population ~600, produces roughly 3 million wheels of Roquefort per year. That is approximately 5,000 wheels per resident. Every person in that village is, statistically, mostly cheese.",
+        "There is a competitive cheese-carving circuit in which artists sculpt elaborate scenes from giant blocks of cheddar. Past subjects include the Sistine Chapel and a full-size Ford pickup truck. Both were eventually eaten.",
+        "Cheese is the only food in many countries legally labeled 'natural' while containing artificial coloring. It exists in a special regulatory dimension where the rules of nature are more of a suggestion.",
+      ];
+
+      // Shuffle facts
+      for (let i = FACTS.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [FACTS[i], FACTS[j]] = [FACTS[j], FACTS[i]];
+      }
+      let idx = 0;
+
+      function showToast() {
+        const toast = document.createElement('div');
+        toast.className = 'cheese-toast';
+        toast.innerHTML = `
+          <span class="cheese-toast-icon">🧀</span>
+          <p class="cheese-toast-text">${FACTS[idx++ % FACTS.length]}</p>
+          <button class="cheese-toast-close" aria-label="Dismiss">✕</button>
+        `;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('cheese-toast--visible')));
+
+        let gone = false;
+        function dismiss() {
+          if (gone) return;
+          gone = true;
+          toast.classList.remove('cheese-toast--visible');
+          setTimeout(() => toast.remove(), 420);
+        }
+
+        toast.querySelector('.cheese-toast-close').addEventListener('click', dismiss);
+        setTimeout(dismiss, 8000);
+        setTimeout(showToast, 35000 + Math.random() * 25000);
+      }
+
+      setTimeout(showToast, 9000 + Math.random() * 4000);
+    })();
+  </script>
 </body>
 </html>
