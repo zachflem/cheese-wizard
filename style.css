@@ -45,7 +45,6 @@ body {
 
 .peek-mouse {
   position: fixed;
-  font-size: 22px;
   pointer-events: none;
   animation: mouse-peek 3.5s ease-in-out forwards;
   z-index: 9999;

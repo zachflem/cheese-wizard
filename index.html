@@ -70,7 +70,8 @@
         const mouse = document.createElement('div');
         mouse.className = 'peek-mouse';
         mouse.textContent = '🐭';
-        mouse.style.cssText = `left:${x}px; top:${y}px;`;
+        const fontSize = 44 + Math.random() * 44; // 44px–88px (2×–4× the original 22px)
+        mouse.style.cssText = `left:${x}px; top:${y}px; font-size:${fontSize}px;`;
         document.body.appendChild(mouse);
 
         setTimeout(() => { hole.remove(); mouse.remove(); }, DURATION + 100);
