@@ -171,9 +171,11 @@
         const toast = document.createElement('div');
         toast.className = 'cheese-toast';
         toast.innerHTML = `
-          <span class="cheese-toast-icon">🧀</span>
-          <p class="cheese-toast-text">${FACTS[idx++ % FACTS.length]}</p>
-          <button class="cheese-toast-close" aria-label="Dismiss">✕</button>
+          <img class="cheese-toast-bg" src="images/toast.png" alt="">
+          <div class="cheese-toast-body">
+            <p class="cheese-toast-text">${FACTS[idx++ % FACTS.length]}</p>
+            <button class="cheese-toast-close" aria-label="Dismiss">✕</button>
+          </div>
         `;
         document.body.appendChild(toast);
 
