@@ -14,8 +14,9 @@
     />
   </main>
 
-  <!-- Cheese trail follows the cursor -->
+  <!-- Cheese trail follows the cursor (mouse-only devices) -->
   <script>
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     const CHEESES = ['🧀', '🧀', '🧀', '🫕', '🍕'];
     let lastX = null, lastY = null;
 
@@ -46,6 +47,7 @@
       document.body.appendChild(el);
       el.addEventListener('animationend', () => el.remove());
     });
+    } // end hover check
   </script>
 
   <!-- Mouse peeks out of a random hole, looks around, disappears, repeats -->
