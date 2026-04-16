@@ -111,12 +111,15 @@ body {
   bottom: 24px;
   right: 24px;
   width: 260px;
-  aspect-ratio: 746 / 752;
-  background: none;
+  height: 262px;
+  background: url('images/toast.png') no-repeat center / contain;
   border: none;
   border-radius: 0;
-  padding: 0;
-  display: block;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   z-index: 10002;
   filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55));
   transform: translateY(calc(100% + 32px));
@@ -127,26 +130,6 @@ body {
 .cheese-toast--visible {
   transform: translateY(0);
   opacity: 1;
-}
-
-.cheese-toast-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-}
-
-.cheese-toast-body {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
 }
 
 .cheese-toast-text {
