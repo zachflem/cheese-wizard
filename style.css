@@ -15,6 +15,20 @@ body {
   justify-content: center;
 }
 
+.cheese-crumb {
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+  transform: translate(-50%, -50%);
+  animation: cheese-float 0.9s ease-out forwards;
+  z-index: 9999;
+}
+
+@keyframes cheese-float {
+  0%   { opacity: 1;   transform: translate(calc(-50% + 0px), -50%) rotate(0deg) scale(1); }
+  100% { opacity: 0;   transform: translate(calc(-50% + var(--drift-x)), calc(-50% - 45px)) rotate(var(--rotation)) scale(0.5); }
+}
+
 main img {
   display: block;
   max-width: 100%;

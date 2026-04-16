@@ -13,5 +13,37 @@
       alt="Cheese Wizard"
     />
   </main>
+  <script>
+    const CHEESES = ['🧀', '🧀', '🧀', '🫕', '🍕'];
+    let lastX = null, lastY = null;
+
+    document.addEventListener('mousemove', (e) => {
+      const dx = lastX !== null ? Math.abs(e.clientX - lastX) : 999;
+      const dy = lastY !== null ? Math.abs(e.clientY - lastY) : 999;
+      if (dx < 12 && dy < 12) return; // throttle by distance
+
+      lastX = e.clientX;
+      lastY = e.clientY;
+
+      const el = document.createElement('span');
+      el.className = 'cheese-crumb';
+      el.textContent = CHEESES[Math.floor(Math.random() * CHEESES.length)];
+
+      const size = 14 + Math.random() * 18;
+      const driftX = (Math.random() - 0.5) * 30;
+      const rotation = (Math.random() - 0.5) * 60;
+
+      el.style.cssText = `
+        left: ${e.clientX}px;
+        top: ${e.clientY}px;
+        font-size: ${size}px;
+        --drift-x: ${driftX}px;
+        --rotation: ${rotation}deg;
+      `;
+
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    });
+  </script>
 </body>
 </html>
