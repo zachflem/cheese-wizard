@@ -105,6 +105,31 @@ body {
   100% { transform: translate(-50%, 8px) scale(0.1); opacity: 0; }
 }
 
+.constellation-star {
+  position: absolute;
+  font-size: 15px;
+  transform: translate(-50%, -50%);
+  animation: star-twinkle 2.4s ease-in-out infinite;
+}
+
+.constellation-star:nth-child(odd)  { animation-delay: -0.8s; }
+.constellation-star:nth-child(even) { animation-delay: -1.6s; }
+
+@keyframes star-twinkle {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    filter: brightness(1); }
+  50%       { transform: translate(-50%, -50%) scale(1.25); filter: brightness(1.5) drop-shadow(0 0 4px rgba(255,220,60,0.7)); }
+}
+
+.constellation-label {
+  position: absolute;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(255, 215, 60, 0.45);
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
 main img {
   display: block;
   max-width: 100%;

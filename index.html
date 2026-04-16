@@ -120,5 +120,142 @@
       schedule(1200);
     })();
   </script>
+  <!-- Stink wafts rise from the hero image -->
+  <script>
+    (function () {
+      function spawnWaft() {
+        const img = document.querySelector('main img');
+        if (!img) return;
+        const rect = img.getBoundingClientRect();
+        const x    = rect.left + rect.width  * (0.25 + Math.random() * 0.5);
+        const yBase = rect.top + rect.height * 0.18;
+        const rise  = 70 + Math.random() * 60;
+        const dur   = 2200 + Math.random() * 1000;
+
+        const ns  = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        const W = 18;
+        svg.setAttribute('width',   W);
+        svg.setAttribute('height',  rise);
+        svg.setAttribute('viewBox', `0 0 ${W} ${rise}`);
+        svg.style.cssText = `position:fixed;left:${x - W/2}px;top:${yBase - rise}px;pointer-events:none;z-index:500;`;
+
+        const path = document.createElementNS(ns, 'path');
+        const H = rise;
+        path.setAttribute('d', `M9,${H} C15,${H*.8} 3,${H*.6} 9,${H*.4} C15,${H*.2} 3,0 9,0`);
+        path.setAttribute('stroke', `hsla(${44 + Math.random()*18|0},75%,58%,0.6)`);
+        path.setAttribute('stroke-width', '2.5');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(path);
+        document.body.appendChild(svg);
+
+        svg.animate(
+          [
+            { opacity: 0,   transform: 'translateY(0px)' },
+            { opacity: 0.75, transform: `translateY(-${rise * 0.15}px)`, offset: 0.15 },
+            { opacity: 0.6,  transform: `translateY(-${rise * 0.65}px)`, offset: 0.75 },
+            { opacity: 0,   transform: `translateY(-${rise}px)` }
+          ],
+          { duration: dur, easing: 'linear', fill: 'forwards' }
+        ).finished.then(() => svg.remove());
+      }
+
+      function loop() {
+        spawnWaft();
+        if (Math.random() > 0.45) setTimeout(spawnWaft, 350 + Math.random() * 350);
+        setTimeout(loop, 1800 + Math.random() * 1400);
+      }
+
+      const img = document.querySelector('main img');
+      const start = () => setTimeout(loop, 600);
+      img.complete ? start() : img.addEventListener('load', start);
+    })();
+  </script>
+
+  <!-- Cheese constellation appears on idle -->
+  <script>
+    (function () {
+      // "Caseius Major" — positions as fractions of viewport
+      const STARS = [
+        [0.10, 0.16], [0.16, 0.10], [0.23, 0.13], [0.20, 0.20], // bowl
+        [0.30, 0.17], [0.38, 0.11], [0.46, 0.07],                // handle
+      ];
+      // Connections: bowl quad + handle
+      const LINES = [[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,6]];
+
+      let idleTimer    = null;
+      let active       = null;
+
+      document.addEventListener('mousemove', () => {
+        clearTimeout(idleTimer);
+        if (active) { scatter(); }
+        idleTimer = setTimeout(show, 4000);
+      });
+      idleTimer = setTimeout(show, 5500);
+
+      function show() {
+        if (active) return;
+        const container = document.createElement('div');
+        container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:300;';
+
+        const ns  = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+
+        const pts = STARS.map(([fx, fy]) => [fx * window.innerWidth, fy * window.innerHeight]);
+
+        LINES.forEach(([a, b]) => {
+          const line = document.createElementNS(ns, 'line');
+          line.setAttribute('x1', pts[a][0]); line.setAttribute('y1', pts[a][1]);
+          line.setAttribute('x2', pts[b][0]); line.setAttribute('y2', pts[b][1]);
+          line.setAttribute('stroke', 'rgba(255,215,60,0.2)');
+          line.setAttribute('stroke-width', '1');
+          svg.appendChild(line);
+        });
+        container.appendChild(svg);
+
+        const starEls = pts.map(([x, y]) => {
+          const el = document.createElement('div');
+          el.className = 'constellation-star';
+          el.textContent = '🧀';
+          el.style.cssText = `left:${x}px;top:${y}px;`;
+          container.appendChild(el);
+          return el;
+        });
+
+        // Label
+        const label = document.createElement('div');
+        label.className = 'constellation-label';
+        label.textContent = 'Caseius Major';
+        label.style.cssText = `left:${pts[6][0] + 12}px;top:${pts[6][1] - 6}px;`;
+        container.appendChild(label);
+
+        document.body.appendChild(container);
+        container.animate([{opacity:0},{opacity:1}], {duration:1800, fill:'forwards'});
+
+        active = { container, starEls };
+      }
+
+      function scatter() {
+        if (!active) return;
+        const { container, starEls } = active;
+        active = null;
+        starEls.forEach(el => {
+          const dx = (Math.random() - 0.5) * 400;
+          const dy = (Math.random() - 0.5) * 400;
+          el.animate(
+            [
+              { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+              { transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
+            ],
+            { duration: 700, easing: 'ease-in', fill: 'forwards' }
+          );
+        });
+        container.animate([{opacity:1},{opacity:0}], {duration:700, fill:'forwards'})
+          .finished.then(() => container.remove());
+      }
+    })();
+  </script>
 </body>
 </html>
