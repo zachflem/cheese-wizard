@@ -22,7 +22,7 @@
     document.addEventListener('mousemove', (e) => {
       const dx = lastX !== null ? Math.abs(e.clientX - lastX) : 999;
       const dy = lastY !== null ? Math.abs(e.clientY - lastY) : 999;
-      if (dx < 12 && dy < 12) return;
+      if (dx < 24 && dy < 24) return;
 
       lastX = e.clientX;
       lastY = e.clientY;
