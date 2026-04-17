@@ -59,9 +59,9 @@
       let peekTimer = null, tickTimer = null;
 
       // Speed scales with level — faster and more frequent each hit
-      function dur()    { return Math.max(1000, 3500 - G.level * 100); }
-      function minGap() { return Math.max(400,  3000 - G.level *  80); }
-      function maxGap() { return Math.max(900,  6000 - G.level * 150); }
+      function dur()    { return Math.max(700,  2000 - G.level *  80); }
+      function minGap() { return Math.max(300,  1200 - G.level *  50); }
+      function maxGap() { return Math.max(700,  2500 - G.level *  90); }
 
       // ── Peek mechanic ───────────────────────────────────────────────
       function schedule(delay) {
@@ -325,9 +325,10 @@
 
       // ── Build UI ──────────────────────────────────────────────────────
       (function buildUI() {
+        // Overlay — hidden until the red button is pressed
         const overlay = document.createElement('div');
         overlay.id = 'game-overlay';
-        overlay.className = 'game-overlay';
+        overlay.className = 'game-overlay game-overlay--hidden';
         overlay.innerHTML = '<div class="game-card"></div>';
         document.body.appendChild(overlay);
         showStartCard(overlay.querySelector('.game-card'));
@@ -341,6 +342,30 @@
           <div class="game-hud-item game-hud-level">LV <span id="hud-level">1</span></div>
         `;
         document.body.appendChild(hud);
+
+        // Invisible trigger positioned over the red button in the hero image
+        // Button is at ~47% x, ~79% y of the image (the "DO NOT PRESS" button)
+        const trigger = document.createElement('button');
+        trigger.className = 'game-trigger';
+        trigger.setAttribute('aria-label', 'Play Mouse Hunt');
+        document.body.appendChild(trigger);
+
+        function positionTrigger() {
+          const img = document.querySelector('main img');
+          if (!img) return;
+          const rect = img.getBoundingClientRect();
+          const cx   = rect.left + rect.width  * 0.469;
+          const cy   = rect.top  + rect.height * 0.793;
+          const size = Math.max(44, rect.height * 0.11);
+          trigger.style.cssText = `left:${cx - size/2}px; top:${cy - size/2}px; width:${size}px; height:${size}px;`;
+        }
+
+        positionTrigger();
+        window.addEventListener('resize', positionTrigger);
+
+        trigger.addEventListener('click', () => {
+          overlay.classList.remove('game-overlay--hidden');
+        });
       })();
 
       // ── Start ambient peeking on start screen ─────────────────────────
