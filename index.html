@@ -352,11 +352,21 @@
 
         function positionTrigger() {
           const img = document.querySelector('main img');
-          if (!img) return;
-          const rect = img.getBoundingClientRect();
-          const cx   = rect.left + rect.width  * 0.469;
-          const cy   = rect.top  + rect.height * 0.793;
-          const size = Math.max(44, rect.height * 0.11);
+          if (!img || !img.naturalWidth) { setTimeout(positionTrigger, 100); return; }
+
+          // With object-fit:cover the rendered image is larger than the element on
+          // one axis — calculate where the actual image pixels land in the viewport.
+          const el    = img.getBoundingClientRect();
+          const scale = Math.max(el.width / img.naturalWidth, el.height / img.naturalHeight);
+          const rw    = img.naturalWidth  * scale;
+          const rh    = img.naturalHeight * scale;
+          const ox    = el.left + (el.width  - rw) / 2;  // may be negative (cropped)
+          const oy    = el.top  + (el.height - rh) / 2;
+
+          // Red "DO NOT PRESS" button lives at ~46.9% x, ~79.3% y of the source image
+          const cx   = ox + rw * 0.469;
+          const cy   = oy + rh * 0.793;
+          const size = Math.max(44, rh * 0.105);
           trigger.style.cssText = `left:${cx - size/2}px; top:${cy - size/2}px; width:${size}px; height:${size}px;`;
         }
 
