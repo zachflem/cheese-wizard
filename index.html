@@ -50,14 +50,20 @@
     } // end hover check
   </script>
 
-  <!-- Mouse peeks out of a random hole, looks around, disappears, repeats -->
+  <!-- Peeking mouse game -->
   <script>
     (function () {
-      const DURATION = 3500;
-      const MIN_GAP  = 3000;
-      const MAX_GAP  = 6000;
-      let peekTimer  = null;
 
+      // ── Game state ──────────────────────────────────────────────────
+      const G = { state: 'idle', score: 0, level: 0, timeLeft: 60 };
+      let peekTimer = null, tickTimer = null;
+
+      // Speed scales with level — faster and more frequent each hit
+      function dur()    { return Math.max(1000, 3500 - G.level * 100); }
+      function minGap() { return Math.max(400,  3000 - G.level *  80); }
+      function maxGap() { return Math.max(900,  6000 - G.level * 150); }
+
+      // ── Peek mechanic ───────────────────────────────────────────────
       function schedule(delay) {
         clearTimeout(peekTimer);
         peekTimer = setTimeout(peek, delay);
@@ -74,54 +80,272 @@
       }
 
       function peek() {
+        if (G.state === 'entry' || G.state === 'board') return;
+
         const img  = document.querySelector('main img');
         const rect = img ? img.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
         const margin = 30;
         const x = rect.left + margin + Math.random() * (rect.width  - margin * 2);
         const y = rect.top  + margin + Math.random() * (rect.height - margin * 2);
         const r = () => (38 + Math.random() * 24) | 0;
+        const d = dur();
 
         const hole = document.createElement('div');
         hole.className = 'peek-hole';
-        hole.style.cssText = `left:${x}px; top:${y}px;
+        hole.style.cssText = `left:${x}px; top:${y}px; --anim-dur:${d / 1000}s;
           border-radius:${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%;`;
         document.body.appendChild(hole);
 
-        const fontSize = 44 + Math.random() * 44;
         const mouse = document.createElement('div');
         mouse.className = 'peek-mouse';
         mouse.textContent = '🐭';
-        mouse.style.cssText = `left:${x}px; top:${y}px; font-size:${fontSize}px;`;
+        mouse.style.cssText = `left:${x}px; top:${y}px; font-size:${44 + Math.random() * 44}px; --anim-dur:${d / 1000}s;`;
         document.body.appendChild(mouse);
 
         let done = false;
+
         const autoCleanup = setTimeout(() => {
           done = true;
           hole.remove();
           mouse.remove();
-          schedule(MIN_GAP + Math.random() * (MAX_GAP - MIN_GAP));
-        }, DURATION + 100);
+          schedule(minGap() + Math.random() * (maxGap() - minGap()));
+        }, d + 100);
 
-        mouse.addEventListener('click', () => {
+        mouse.addEventListener('click', (e) => {
           if (done) return;
           done = true;
           clearTimeout(autoCleanup);
+          e.stopPropagation(); // prevent miss detection firing
 
           swipeNet(x, y);
-
-          // Mouse ducks away scared
           mouse.style.transition = 'opacity 0.2s ease';
           hole.style.transition  = 'opacity 0.25s ease';
           mouse.style.opacity = '0';
           hole.style.opacity  = '0';
           setTimeout(() => { mouse.remove(); hole.remove(); }, 300);
 
+          if (G.state === 'playing') {
+            G.score += 3;
+            G.level++;
+            scoreFlash('+3', e.clientX, e.clientY, true);
+            updateHUD();
+          }
+
           // Spooked but curious — reappears sooner
-          schedule(1200 + Math.random() * 1500);
+          schedule(minGap() + Math.random() * (maxGap() - minGap()));
         });
       }
 
+      // ── Score flash ─────────────────────────────────────────────────
+      function scoreFlash(text, x, y, hit) {
+        const el = document.createElement('div');
+        el.className = 'game-score-flash ' + (hit ? 'game-score-flash--hit' : 'game-score-flash--miss');
+        el.textContent = text;
+        el.style.cssText = `left:${x}px; top:${y}px;`;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
+
+      // ── HUD ─────────────────────────────────────────────────────────
+      function updateHUD() {
+        document.getElementById('hud-score').textContent = G.score;
+        document.getElementById('hud-time').textContent  = G.timeLeft;
+        document.getElementById('hud-level').textContent = G.level + 1;
+      }
+
+      // ── Game lifecycle ───────────────────────────────────────────────
+      function startGame() {
+        G.state = 'playing';
+        G.score = 0;
+        G.level = 0;
+        G.timeLeft = 60;
+
+        document.getElementById('game-overlay').classList.add('game-overlay--hidden');
+        document.getElementById('game-hud').classList.remove('game-hud--hidden');
+        updateHUD();
+
+        clearInterval(tickTimer);
+        tickTimer = setInterval(() => {
+          G.timeLeft--;
+          updateHUD();
+          if (G.timeLeft <= 0) { clearInterval(tickTimer); endGame(); }
+        }, 1000);
+
+        schedule(300 + Math.random() * 500);
+      }
+
+      function endGame() {
+        G.state = 'entry';
+        clearTimeout(peekTimer);
+        document.querySelectorAll('.peek-mouse, .peek-hole').forEach(el => el.remove());
+        document.getElementById('game-hud').classList.add('game-hud--hidden');
+        showNameEntry();
+      }
+
+      // ── Miss detection ───────────────────────────────────────────────
+      document.addEventListener('click', (e) => {
+        if (G.state !== 'playing') return;
+        if (e.target.closest('.peek-mouse')) return;
+        if (e.target.closest('#game-hud')) return;
+
+        const img  = document.querySelector('main img');
+        const rect = img.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right ||
+            e.clientY < rect.top  || e.clientY > rect.bottom) return;
+
+        G.score -= 5;
+        scoreFlash('-5', e.clientX, e.clientY, false);
+        updateHUD();
+      });
+
+      // ── Leaderboard ──────────────────────────────────────────────────
+      const LB = {
+        get() {
+          try { return JSON.parse(localStorage.getItem('cwLB') || '[]'); } catch { return []; }
+        },
+        add(name, score) {
+          const entries = this.get();
+          const entry = {
+            name,
+            score,
+            date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })
+          };
+          entries.push(entry);
+          entries.sort((a, b) => b.score - a.score);
+          const idx = entries.indexOf(entry);
+          if (entries.length > 10) entries.length = 10;
+          localStorage.setItem('cwLB', JSON.stringify(entries));
+          return { entries, idx: idx < 10 ? idx : -1 };
+        }
+      };
+
+      // ── Name entry ────────────────────────────────────────────────────
+      function showNameEntry() {
+        const overlay = document.getElementById('game-overlay');
+        const card    = overlay.querySelector('.game-card');
+        overlay.classList.remove('game-overlay--hidden');
+
+        card.innerHTML = `
+          <div class="game-name-header">
+            <div class="game-final-score">FINAL SCORE: ${G.score}</div>
+            <div class="game-name-title">ENTER YOUR NAME</div>
+          </div>
+          <div class="game-name-slots" id="name-slots"></div>
+          <div class="game-name-hint">TYPE 5 CHARACTERS &nbsp;•&nbsp; BACKSPACE TO DELETE</div>
+          <button class="game-btn game-btn--dim" id="name-submit" disabled>SUBMIT</button>
+        `;
+
+        // Hidden input captures keyboard on both desktop and mobile
+        const input = document.createElement('input');
+        input.setAttribute('maxlength', '5');
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.setAttribute('autocapitalize', 'characters');
+        input.style.cssText = 'position:fixed;opacity:0;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+        card.appendChild(input);
+        requestAnimationFrame(() => input.focus());
+
+        // Re-focus if user taps elsewhere on the card
+        card.addEventListener('click', () => input.focus());
+
+        function renderSlots(val) {
+          const slots = Array.from({ length: 5 }, (_, i) => val[i] || '_');
+          const cur   = Math.min(val.length, 4);
+          document.getElementById('name-slots').innerHTML = slots.map((c, i) =>
+            `<div class="game-name-slot${(i === cur && val.length < 5) ? ' game-name-slot--active' : ''}">${c}</div>`
+          ).join('');
+          const filled = val.length === 5;
+          const btn = document.getElementById('name-submit');
+          btn.disabled = !filled;
+          btn.className = 'game-btn' + (filled ? '' : ' game-btn--dim');
+        }
+
+        renderSlots('');
+
+        input.addEventListener('input', () => {
+          const val = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+          input.value = val;
+          renderSlots(val);
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && input.value.length === 5) submit();
+        });
+
+        document.getElementById('name-submit').addEventListener('click', submit);
+
+        function submit() {
+          const name = input.value.padEnd(5, ' ');
+          const { entries, idx } = LB.add(name, G.score);
+          G.state = 'board';
+          showLeaderboard(entries, idx, card);
+        }
+      }
+
+      // ── Leaderboard display ───────────────────────────────────────────
+      function showLeaderboard(entries, newIdx, card) {
+        const empty = '<tr><td colspan="4" style="opacity:0.35;text-align:center;padding:16px;">— no scores yet —</td></tr>';
+        card.innerHTML = `
+          <div class="game-lb-title">🏆 TOP HUNTERS 🏆</div>
+          <table class="game-lb-table">
+            <thead><tr><th>#</th><th>NAME</th><th>SCORE</th><th>DATE</th></tr></thead>
+            <tbody>${entries.length ? entries.map((e, i) =>
+              `<tr class="${i === newIdx ? 'game-lb-new' : ''}">
+                <td>${i + 1}</td>
+                <td>${e.name}</td>
+                <td>${e.score}</td>
+                <td>${e.date}</td>
+              </tr>`
+            ).join('') : empty}</tbody>
+          </table>
+          <button class="game-btn" id="play-again-btn">PLAY AGAIN</button>
+        `;
+
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+          G.state = 'idle';
+          showStartCard(card);
+          schedule(1500 + Math.random() * 1500);
+        });
+      }
+
+      // ── Start card ────────────────────────────────────────────────────
+      function showStartCard(card) {
+        card.innerHTML = `
+          <div class="game-start-logo">🐭</div>
+          <h2 class="game-start-title">MOUSE HUNT</h2>
+          <div class="game-start-rules">
+            <div class="game-rule game-rule--hit">HIT a mouse &nbsp;+3 pts</div>
+            <div class="game-rule game-rule--miss">MISS a click &nbsp;−5 pts</div>
+            <div class="game-start-sub">60 SECONDS &nbsp;•&nbsp; SPEED INCREASES EACH HIT</div>
+          </div>
+          <button class="game-btn" id="game-start-btn">PLAY GAME</button>
+        `;
+        document.getElementById('game-start-btn').addEventListener('click', startGame);
+      }
+
+      // ── Build UI ──────────────────────────────────────────────────────
+      (function buildUI() {
+        const overlay = document.createElement('div');
+        overlay.id = 'game-overlay';
+        overlay.className = 'game-overlay';
+        overlay.innerHTML = '<div class="game-card"></div>';
+        document.body.appendChild(overlay);
+        showStartCard(overlay.querySelector('.game-card'));
+
+        const hud = document.createElement('div');
+        hud.id = 'game-hud';
+        hud.className = 'game-hud game-hud--hidden';
+        hud.innerHTML = `
+          <div class="game-hud-item">SCORE <span id="hud-score">0</span></div>
+          <div class="game-hud-item game-hud-timer"><span id="hud-time">60</span>s</div>
+          <div class="game-hud-item game-hud-level">LV <span id="hud-level">1</span></div>
+        `;
+        document.body.appendChild(hud);
+      })();
+
+      // ── Start ambient peeking on start screen ─────────────────────────
       schedule(1200);
+
     })();
   </script>
   <!-- Toasted cheese facts -->
