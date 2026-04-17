@@ -450,3 +450,23 @@ main img {
 }
 
 .game-lb-new td:first-child::before { content: '▶ '; }
+
+.game-lb-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.game-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 215, 0, 0.3);
+  color: rgba(255, 215, 0, 0.45);
+  box-shadow: none;
+}
+
+.game-btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.6);
+  color: rgba(255, 215, 0, 0.8);
+  box-shadow: none;
+}

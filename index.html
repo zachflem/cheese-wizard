@@ -298,12 +298,21 @@
               </tr>`
             ).join('') : empty}</tbody>
           </table>
-          <button class="game-btn" id="play-again-btn">PLAY AGAIN</button>
+          <div class="game-lb-actions">
+            <button class="game-btn" id="play-again-btn">PLAY AGAIN</button>
+            <button class="game-btn game-btn--ghost" id="close-lb-btn">CLOSE</button>
+          </div>
         `;
 
         document.getElementById('play-again-btn').addEventListener('click', () => {
           G.state = 'idle';
           showStartCard(card);
+          schedule(1500 + Math.random() * 1500);
+        });
+
+        document.getElementById('close-lb-btn').addEventListener('click', () => {
+          G.state = 'idle';
+          document.getElementById('game-overlay').classList.add('game-overlay--hidden');
           schedule(1500 + Math.random() * 1500);
         });
       }
