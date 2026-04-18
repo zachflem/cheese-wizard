@@ -58,10 +58,10 @@
       const G = { state: 'idle', score: 0, level: 0, timeLeft: 60 };
       let peekTimer = null, tickTimer = null;
 
-      // Speed scales with level — faster and more frequent each hit
+      // Speed scales with level — faster and more frequent each hit (game only)
       function dur()    { return Math.max(700,  2000 - G.level *  80); }
-      function minGap() { return Math.max(300,  1200 - G.level *  50); }
-      function maxGap() { return Math.max(700,  2500 - G.level *  90); }
+      function minGap() { return G.state === 'playing' ? Math.max(300,  600 - G.level * 30) : 3000; }
+      function maxGap() { return G.state === 'playing' ? Math.max(700, 1400 - G.level * 60) : 5500; }
 
       // ── Peek mechanic ───────────────────────────────────────────────
       function schedule(delay) {
@@ -82,11 +82,10 @@
       function peek() {
         if (G.state === 'entry' || G.state === 'board') return;
 
-        const img  = document.querySelector('main img');
-        const rect = img ? img.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-        const margin = 30;
-        const x = rect.left + margin + Math.random() * (rect.width  - margin * 2);
-        const y = rect.top  + margin + Math.random() * (rect.height - margin * 2);
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const padX = vw * 0.05, padY = vh * 0.05;
+        const x = padX + Math.random() * (vw - padX * 2);
+        const y = padY + Math.random() * (vh - padY * 2);
         const r = () => (38 + Math.random() * 24) | 0;
         const d = dur();
 
