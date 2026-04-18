@@ -174,7 +174,7 @@ main img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
 }
 
@@ -182,13 +182,6 @@ main img {
 @media (hover: none) {
   main {
     height: 100svh;
-  }
-}
-
-/* Portrait viewports: show the full 16:9 image instead of cropping the sides */
-@media (orientation: portrait) {
-  main img {
-    object-fit: contain;
   }
 }
 
