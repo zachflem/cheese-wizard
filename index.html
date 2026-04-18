@@ -370,9 +370,9 @@
           const ox    = el.left + (el.width  - rw) / 2;
           const oy    = el.top  + (el.height - rh) / 2;
 
-          // Red "PUSH" button lives at ~85% x, ~87% y of the source image (bottom-right)
-          const cx   = ox + rw * 0.850;
-          const cy   = oy + rh * 0.870;
+          // Red "PUSH" button lives at 82.0% x, 81.1% y of the source image (1260,830 in 1536×1024)
+          const cx   = ox + rw * 0.820;
+          const cy   = oy + rh * 0.811;
           const size = Math.max(44, rh * 0.120);
           trigger.style.cssText = `left:${cx - size/2}px; top:${cy - size/2}px; width:${size}px; height:${size}px;`;
         }
