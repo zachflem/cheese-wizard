@@ -166,6 +166,7 @@ body {
 main {
   width: 100vw;
   height: 100vh;
+  background: #000;
 }
 
 main img {
@@ -180,6 +181,13 @@ main img {
 @media (hover: none) {
   main {
     height: 100svh;
+  }
+}
+
+/* Portrait viewports: show the full 16:9 image instead of cropping the sides */
+@media (orientation: portrait) {
+  main img {
+    object-fit: contain;
   }
 }
 
