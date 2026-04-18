@@ -362,13 +362,9 @@
           const img = document.querySelector('main img');
           if (!img || !img.naturalWidth) { setTimeout(positionTrigger, 100); return; }
 
-          // Landscape uses object-fit:cover (scale up to fill, may crop);
-          // portrait uses object-fit:contain (scale down to fit, may letterbox).
-          const el         = img.getBoundingClientRect();
-          const isPortrait = el.height > el.width;
-          const scale = isPortrait
-            ? Math.min(el.width / img.naturalWidth, el.height / img.naturalHeight)
-            : Math.max(el.width / img.naturalWidth, el.height / img.naturalHeight);
+          // object-fit:contain — scale to fit, may letterbox on any orientation.
+          const el    = img.getBoundingClientRect();
+          const scale = Math.min(el.width / img.naturalWidth, el.height / img.naturalHeight);
           const rw    = img.naturalWidth  * scale;
           const rh    = img.naturalHeight * scale;
           const ox    = el.left + (el.width  - rw) / 2;
